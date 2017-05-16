@@ -86,10 +86,10 @@ if __name__=='__main__':
 		print(row_by_label)
 		dataset_per_traffic_type = dataset[dataset.label == row_by_label]
 		
-		# memilih max 21 rows yang akan dijadikan data latih
-		random_pick = 21
+		# memilih max 100 dataset acak yang akan dijadikan data latih
+		random_pick = 100
 	
-		# kali aja gak sampe 21, jadi kita kurang2ing kalo error
+		# kali aja gak sampe 100, jadi kita kurangi kalo error
 		try:
 			sample_rows = random.sample(dataset_per_traffic_type.index, random_pick)
 		except:
@@ -115,30 +115,54 @@ if __name__=='__main__':
 		
 	# Saatnya menguji
 	
-	# Memilih 1 data diuji untuk masing-masing label
-	for row_by_label in dataset.label.unique():
-		print("Origin : " + row_by_label)
-		dataset_per_traffic_type = dataset[dataset.label == row_by_label]
-		
-		random_pick = 1
-		
-		data_test_row = random.sample(dataset_per_traffic_type.index, random_pick)
-		data_test = dataset_per_traffic_type.ix[data_test_row]
-		data_test_feature = data_test[num_features].astype(float)
+	# Memilih 1 data acak diuji untuk masing-masing label
+	result = {'correct' : 0, 'incorrect' : 0}
+	result_label = []
 	
-		# Define variables
-		max_score = None
-		output_label = None
+	for row_by_label in dataset.label.unique():
+		try:
+			dataset_per_traffic_type = dataset[dataset.label == row_by_label]
+			
+			random_pick = 1
+			
+			data_test_row = random.sample(dataset_per_traffic_type.index, random_pick)
+			data_test = dataset_per_traffic_type.ix[data_test_row]
+			data_test_feature = data_test[num_features].astype(float)
+		
+			# Define variables
+			max_score = None
+			output_label = None
 
-		# Iterate through all HMM models and pick 
-		# the one with the highest score
-		for item in hmm_models:
-			hmm_model, label = item
-			score = hmm_model.get_score(data_test_feature)
-			if score > max_score:
-				max_score = score
-				output_label = label
+			# Iterate through all HMM models and pick 
+			# the one with the highest score
+			for item in hmm_models:
+				hmm_model, label = item
+				score = hmm_model.get_score(data_test_feature)
+				if score > max_score:
+					max_score = score
+					output_label = label
 
-		# Print the output
-		print "Predicted:", output_label 
-
+			label_res = {'origin' : row_by_label, 'predicted' : output_label}
+			result_label.append(label_res)
+			
+				
+		except Exception as e:
+			raise e
+	
+	print("============================================================================================")
+	print("Persentasi kebeneran identifikasi")
+	for each_ in result_label:
+		#print("Origin : {} | Predicted : {}".format(each_['origin'], each_['predicted']))
+		print(each_)
+		if each_['origin'] == each_['predicted']:
+			result['correct'] += 1
+			print('correct')
+		else:
+			result['incorrect'] += 1
+			print('incorrect')
+				
+		print('')
+		
+	print("Benar : {} dari {} data uji".format(result['correct'], result['correct'] + result['incorrect']))
+	correct_precentage = float(result['correct']) / float(result['correct'] + result['incorrect']) * 100
+	print(str(correct_precentage) + '%')
