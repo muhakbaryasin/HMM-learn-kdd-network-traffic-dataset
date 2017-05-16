@@ -1,6 +1,6 @@
 # HMM-learn-kdd-network-traffic-dataset
-HMM Learn Using KDD Network Traffic
-
+HMM Learn Using KDD Cup 1999 Network Traffic Dataset
+http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html
 
 Tugas Pembuatan Software Machine Learning
 Kelompok 7:
