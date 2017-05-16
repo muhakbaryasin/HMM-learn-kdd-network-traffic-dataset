@@ -106,7 +106,6 @@ if __name__=='__main__':
 		else:
 			X = np.append(X, feature_per_traffic_type, axis=0)
 		
-		print 'X.shape =', X.shape
 		y_words.append(row_by_label)
 		hmm_trainer = HMMTrainer()
 		hmm_trainer.train(X)
