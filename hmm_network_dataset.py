@@ -4,6 +4,7 @@ import numpy as np
 from hmmlearn import hmm
 import pandas
 from time import time
+import random
 
 # Class to handle all HMM related processing
 class HMMTrainer(object):
@@ -66,54 +67,58 @@ if __name__=='__main__':
 		"dst_host_srv_diff_host_rate","dst_host_serror_rate","dst_host_srv_serror_rate",
 		"dst_host_rerror_rate","dst_host_srv_rerror_rate"
 	]
-	features = dataset[num_features].astype(float)
-	
-	# Menampilkan fitur dataset pada console
-	print("Menampilkan fitur dataset pada console:")
-	print(features.shape)
-	import pdb; pdb.set_trace()
 	
 	hmm_models = []
-
+	
 	# Extract label, labelnya normal/attack
-	label = subfolder[subfolder.rfind('/') + 1:]
-
-	# Initialize variables
+	"""
+	ATTACK
+	['buffer_overflow.', 'loadmodule.', 'perl.', 'neptune.',
+       'smurf.', 'guess_passwd.', 'pod.', 'teardrop.', 'portsweep.',
+       'ipsweep.', 'land.', 'ftp_write.', 'back.', 'imap.', 'satan.',
+       'phf.', 'nmap.', 'multihop.', 'warezmaster.', 'warezclient.',
+       'spy.', 'rootkit.']
+	"""
+	pdb.set_trace()
 	X = np.array([])
 	y_words = []
-
-	# Iterate through the datasets (leaving 1 file for testing in each class)
-	# for filename in [x for x in os.listdir(subfolder) if x.endswith('.wav')][:-1]:
-	# bagian sini diganti berdasarkan traffic normal sama traffic attack
-	# sampling_freq, audio = wavfile.read(filepath)
-	# Extract features
-	# mfcc_features = mfcc(audio, sampling_freq)
 	
-
-	# Append to the variable X
-	if len(X) == 0:
-		X = mfcc_features
-	else:
-		X = np.append(X, mfcc_features, axis=0)
+	for row_by_label in dataset.label.unique():
+		print(row_by_label)
+		dataset_per_traffic_type = dataset[dataset.label == row_by_label]
+		
+		# memilih max 21 rows yang akan dijadikan data latih
+		random_pick = 21
 	
-	# Append the label
-	y_words.append(label)
-
-	print 'X.shape =', X.shape
+		# kali aja gak sampe 21, jadi kita kurang2ing kalo error
+		try:
+			sample_rows = random.sample(dataset_per_traffic_type.index, random_pick)
+		except:
+			random_pick = len(dataset_per_traffic_type)
+			sample_rows = random.sample(dataset_per_traffic_type.index, random_pick)
+				
+		data_sample_per_traffic_type = dataset_per_traffic_type.ix[sample_rows]
+		
+		# Ekstraksi fitur dari data sample
+		feature_per_traffic_type = data_sample_per_traffic_type[num_features].astype(float)
+		
+		if len(X) == 0:
+			X = feature_per_traffic_type
+		else:
+			X = np.append(X, feature_per_traffic_type, axis=0)
+		
+		print 'X.shape =', X.shape
+		y_words.append(row_by_label)
+		hmm_trainer = HMMTrainer()
+		hmm_trainer.train(X)
+		hmm_models.append((hmm_trainer, row_by_label))
+		hmm_trainer = None
 	
-	# Train and save HMM model
-	hmm_trainer = HMMTrainer()
-	hmm_trainer.train(X)
-	hmm_models.append((hmm_trainer, label))
-	hmm_trainer = None
-
-	# Test files
-	input_files = [
-			'data/pineapple/pineapple15.wav',
-			'data/orange/orange15.wav',
-			'data/apple/apple15.wav',
-			'data/kiwi/kiwi15.wav'
-			]
+		
+	# Saatnya menguji
+	# Test dataset
+	
+	import pdb
 
 	# Classify input data
 	for input_file in input_files:
