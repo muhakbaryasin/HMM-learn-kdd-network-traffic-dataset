@@ -34,6 +34,6 @@ yang dieksekusi dari virtualenv yang telah dipersiapkan sebelumnya.
 https://youtu.be/MFjUgplCoTw
 
 # Resource
-https://github.com/jadianes/kdd-cup-99-spark
-http://machinelearningmastery.com/machine-learning-in-python-step-by-step/
-https://github.com/muhakbaryasin/Python-Real-World-Machine-Learning
+- https://github.com/jadianes/kdd-cup-99-spark
+- http://machinelearningmastery.com/machine-learning-in-python-step-by-step/
+- https://github.com/muhakbaryasin/Python-Real-World-Machine-Learning
