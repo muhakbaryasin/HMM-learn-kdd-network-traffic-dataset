@@ -30,51 +30,82 @@ class HMMTrainer(object):
 		return self.model.score(input_data)
 
 if __name__=='__main__':
-	input_folder = 'data'
+	
+	# Kolom yang ada dalam dataset
+	col_names = ["duration","protocol_type","service","flag","src_bytes",
+		"dst_bytes","land","wrong_fragment","urgent","hot","num_failed_logins",
+		"logged_in","num_compromised","root_shell","su_attempted","num_root",
+		"num_file_creations","num_shells","num_access_files","num_outbound_cmds",
+		"is_host_login","is_guest_login","count","srv_count","serror_rate",
+		"srv_serror_rate","rerror_rate","srv_rerror_rate","same_srv_rate",
+		"diff_srv_rate","srv_diff_host_rate","dst_host_count","dst_host_srv_count",
+		"dst_host_same_srv_rate","dst_host_diff_srv_rate","dst_host_same_src_port_rate",
+		"dst_host_srv_diff_host_rate","dst_host_serror_rate","dst_host_srv_serror_rate",
+		"dst_host_rerror_rate","dst_host_srv_rerror_rate","label"]
+	
+	# Load dataset dari file
+	dataset = pandas.read_csv("kddcup.data_10_percent_corrected", header=None, names = col_names)
+	
+	# Menampilkan dataset pada console
+	print("Menampilkan dataset pada console: ")
+	print(dataset.shape)
+	print("Example 20 first rows")
+	print(dataset.head(20))
+	print(dataset['label'].value_counts())
 
+	# Fitur2 yang diperlukan
+	num_features = [
+		"duration","src_bytes",
+		"dst_bytes","land","wrong_fragment","urgent","hot","num_failed_logins",
+		"logged_in","num_compromised","root_shell","su_attempted","num_root",
+		"num_file_creations","num_shells","num_access_files","num_outbound_cmds",
+		"is_host_login","is_guest_login","count","srv_count","serror_rate",
+		"srv_serror_rate","rerror_rate","srv_rerror_rate","same_srv_rate",
+		"diff_srv_rate","srv_diff_host_rate","dst_host_count","dst_host_srv_count",
+		"dst_host_same_srv_rate","dst_host_diff_srv_rate","dst_host_same_src_port_rate",
+		"dst_host_srv_diff_host_rate","dst_host_serror_rate","dst_host_srv_serror_rate",
+		"dst_host_rerror_rate","dst_host_srv_rerror_rate"
+	]
+	features = dataset[num_features].astype(float)
+	
+	# Menampilkan fitur dataset pada console
+	print("Menampilkan fitur dataset pada console:")
+	print(features.shape)
+	import pdb; pdb.set_trace()
+	
 	hmm_models = []
 
-	# Parse the input directory
-	for dirname in os.listdir(input_folder):
-		# Get the name of the subfolder 
-		subfolder = os.path.join(input_folder, dirname)
+	# Extract label, labelnya normal/attack
+	label = subfolder[subfolder.rfind('/') + 1:]
 
-		if not os.path.isdir(subfolder): 
-			continue
+	# Initialize variables
+	X = np.array([])
+	y_words = []
 
-		# Extract the label
-		label = subfolder[subfolder.rfind('/') + 1:]
+	# Iterate through the datasets (leaving 1 file for testing in each class)
+	# for filename in [x for x in os.listdir(subfolder) if x.endswith('.wav')][:-1]:
+	# bagian sini diganti berdasarkan traffic normal sama traffic attack
+	# sampling_freq, audio = wavfile.read(filepath)
+	# Extract features
+	# mfcc_features = mfcc(audio, sampling_freq)
+	
 
-		# Initialize variables
-		X = np.array([])
-		y_words = []
+	# Append to the variable X
+	if len(X) == 0:
+		X = mfcc_features
+	else:
+		X = np.append(X, mfcc_features, axis=0)
+	
+	# Append the label
+	y_words.append(label)
 
-		# Iterate through the audio files (leaving 1 file for testing in each class)
-		
-		for filename in [x for x in os.listdir(subfolder) if x.endswith('.wav')][:-1]:
-			# Read the input file
-			filepath = os.path.join(subfolder, filename)
-			sampling_freq, audio = wavfile.read(filepath)
-			
-			# Extract features
-			mfcc_features = mfcc(audio, sampling_freq)
-
-			# Append to the variable X
-			if len(X) == 0:
-				X = mfcc_features
-			else:
-				X = np.append(X, mfcc_features, axis=0)
-			
-			# Append the label
-			y_words.append(label)
-
-		print 'X.shape =', X.shape
-		
-		# Train and save HMM model
-		hmm_trainer = HMMTrainer()
-		hmm_trainer.train(X)
-		hmm_models.append((hmm_trainer, label))
-		hmm_trainer = None
+	print 'X.shape =', X.shape
+	
+	# Train and save HMM model
+	hmm_trainer = HMMTrainer()
+	hmm_trainer.train(X)
+	hmm_models.append((hmm_trainer, label))
+	hmm_trainer = None
 
 	# Test files
 	input_files = [
