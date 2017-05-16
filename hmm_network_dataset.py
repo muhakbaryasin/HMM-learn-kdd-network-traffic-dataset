@@ -79,7 +79,6 @@ if __name__=='__main__':
        'phf.', 'nmap.', 'multihop.', 'warezmaster.', 'warezclient.',
        'spy.', 'rootkit.']
 	"""
-	pdb.set_trace()
 	X = np.array([])
 	y_words = []
 	
@@ -116,18 +115,18 @@ if __name__=='__main__':
 	
 		
 	# Saatnya menguji
-	# Test dataset
 	
-	import pdb
-
-	# Classify input data
-	for input_file in input_files:
-		# Read input file
-		sampling_freq, audio = wavfile.read(input_file)
-
-		# Extract MFCC features
-		mfcc_features = mfcc(audio, sampling_freq)
-
+	# Memilih 1 data diuji untuk masing-masing label
+	for row_by_label in dataset.label.unique():
+		print("Origin : " + row_by_label)
+		dataset_per_traffic_type = dataset[dataset.label == row_by_label]
+		
+		random_pick = 1
+		
+		data_test_row = random.sample(dataset_per_traffic_type.index, random_pick)
+		data_test = dataset_per_traffic_type.ix[data_test_row]
+		data_test_feature = data_test[num_features].astype(float)
+	
 		# Define variables
 		max_score = None
 		output_label = None
@@ -136,12 +135,11 @@ if __name__=='__main__':
 		# the one with the highest score
 		for item in hmm_models:
 			hmm_model, label = item
-			score = hmm_model.get_score(mfcc_features)
+			score = hmm_model.get_score(data_test_feature)
 			if score > max_score:
 				max_score = score
 				output_label = label
 
 		# Print the output
-		print "\nTrue:", input_file[input_file.find('/')+1:input_file.rfind('/')]
 		print "Predicted:", output_label 
 
