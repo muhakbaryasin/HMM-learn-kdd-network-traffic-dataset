@@ -14,7 +14,7 @@ Penggunanaan 'python -W ignore hmm_network_dataset.py'
 yang dieksekusi dari virtualenv yang telah dipersiapkan sebelumnya.
 
 # Kebutuhan Aplikasi:
-1. python versi 3
+1. python versi 2.7 
 2. python virtual env
   - numpy
   - hmmlearn
